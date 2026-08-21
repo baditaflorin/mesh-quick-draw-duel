@@ -1,0 +1,169 @@
+:root {
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  background: #10212b;
+  color: #ecfbff;
+  font-family: Inter, system-ui, sans-serif;
+}
+button,
+input {
+  font: inherit;
+}
+button:focus-visible,
+input:focus-visible,
+canvas:focus-visible {
+  outline: 3px solid #71c9ce;
+  outline-offset: 3px;
+}
+.duel-page {
+  width: min(1080px, calc(100% - 2rem));
+  margin: auto;
+  padding: 6rem 0 4rem;
+}
+.eyebrow {
+  color: #71c9ce;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  margin: 0 0 0.55rem;
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+h1 {
+  max-width: 12ch;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.88;
+  letter-spacing: -0.075em;
+  margin-bottom: 1rem;
+}
+.timer {
+  display: inline-grid;
+  min-width: 150px;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #1e4551;
+  border: 1px solid #71c9ce;
+  text-align: center;
+}
+.timer span {
+  font-size: 0.75rem;
+  color: #bae8eb;
+}
+.timer strong {
+  font-size: 2.4rem;
+}
+.duel-grid {
+  display: grid;
+  grid-template-columns: 0.75fr 1.25fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.card {
+  background: linear-gradient(145deg, #17323f, #122936);
+  border: 1px solid #ffffff20;
+  border-radius: 22px;
+  padding: 1.35rem;
+  box-shadow: 0 20px 45px #0003;
+}
+.mesh-name-input {
+  margin: 0.2rem 0 1rem;
+}
+.primary {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.82rem;
+  background: #71c9ce;
+  color: #082329;
+  font-weight: 900;
+  cursor: pointer;
+}
+.primary:disabled,
+.fallback button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.controls p {
+  color: #bae8eb;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+.fallback {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.fallback button {
+  border: 1px solid #71c9ce;
+  background: #ffffff0a;
+  color: #ecfbff;
+  border-radius: 10px;
+  padding: 0.7rem;
+  cursor: pointer;
+}
+.canvas-card canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 15px;
+  background: #0c1b23;
+  border: 1px dashed #71c9ce;
+  touch-action: none;
+}
+.canvas-note {
+  color: #bae8eb;
+  font-size: 0.82rem;
+  margin: 0.7rem 0 0;
+}
+.result {
+  margin-top: 1rem;
+}
+.result ol {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+.result li {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  border-top: 1px solid #ffffff18;
+  padding: 0.8rem 0;
+}
+.result li span {
+  color: #71c9ce;
+  font-weight: 900;
+}
+.result li small {
+  color: #bae8eb;
+}
+.empty {
+  color: #bae8eb;
+}
+@media (max-width: 720px) {
+  .duel-page {
+    padding-top: 5.2rem;
+  }
+  .duel-grid {
+    grid-template-columns: 1fr;
+  }
+  .result li {
+    grid-template-columns: 2rem 1fr;
+  }
+  .result li small {
+    grid-column: 2;
+  }
+}

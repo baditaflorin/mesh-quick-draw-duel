@@ -1,0 +1,10 @@
+steps:
+  verify:
+    image: node:22-bookworm
+    commands:
+      - npm ci
+      - npx playwright install --with-deps chromium
+      - npm run fmt:check
+      - npm run typecheck
+      - npm run test
+      - npm run build
