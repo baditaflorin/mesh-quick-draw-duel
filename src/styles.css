@@ -1,169 +1,466 @@
 :root {
   color-scheme: dark;
 }
+
 * {
   box-sizing: border-box;
 }
+
 html,
 body,
 #root {
   min-height: 100%;
   margin: 0;
-  background: #10212b;
-  color: #ecfbff;
-  font-family: Inter, system-ui, sans-serif;
+  background: var(--mesh-canvas, #0f1220);
+  color: var(--mesh-text, #f7f4ed);
+  font-family: var(--mesh-font-sans, Inter, system-ui, sans-serif);
 }
+
 button,
 input {
   font: inherit;
 }
-button:focus-visible,
-input:focus-visible,
-canvas:focus-visible {
-  outline: 3px solid #71c9ce;
-  outline-offset: 3px;
+
+.quick-draw-page {
+  position: relative;
+  width: min(100%, 76rem);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: clamp(1rem, 3.5vw, 3rem);
+  overflow: hidden;
 }
-.duel-page {
-  width: min(1080px, calc(100% - 2rem));
-  margin: auto;
-  padding: 6rem 0 4rem;
+
+.quick-draw-page::before {
+  position: absolute;
+  z-index: -1;
+  top: -10rem;
+  right: -13rem;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(231 184 81 / 17%), transparent 66%);
+  content: "";
+  pointer-events: none;
 }
-.eyebrow {
-  color: #71c9ce;
+
+.quick-draw-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: clamp(1rem, 2vw, 1.7rem);
+}
+
+.quick-draw-eyebrow {
+  margin: 0 0 0.45rem;
+  color: var(--mesh-accent, #e7b851);
+  font-size: 0.68rem;
+  font-weight: 760;
+  letter-spacing: 0.15em;
+  line-height: 1.2;
   text-transform: uppercase;
-  font-size: 0.72rem;
-  font-weight: 850;
-  letter-spacing: 0.14em;
-  margin: 0 0 0.55rem;
 }
-h1,
-h2,
-p {
+
+.quick-draw-intro h1,
+.quick-draw-round h2,
+.quick-draw-canvas-card h2,
+.quick-draw-results h2 {
+  margin: 0;
+  color: var(--mesh-text, #f7f4ed);
+  letter-spacing: -0.055em;
+}
+
+.quick-draw-intro h1 {
+  max-width: 11ch;
+  font-size: clamp(2.45rem, 5.8vw, 5.25rem);
+  line-height: 0.91;
+}
+
+.quick-draw-lede {
+  max-width: 35rem;
+  margin: 0.9rem 0 0;
+  color: var(--mesh-text-muted, #b5bdd2);
+  font-size: clamp(0.96rem, 1.8vw, 1.1rem);
+  line-height: 1.5;
+}
+
+.quick-draw-signals {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.45rem;
+}
+
+.quick-draw-workspace {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr);
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+  align-items: stretch;
+}
+
+.quick-draw-round,
+.quick-draw-canvas-card,
+.quick-draw-results {
+  min-width: 0;
+  border-color: color-mix(in srgb, var(--mesh-border, #38415e) 86%, transparent);
+}
+
+.quick-draw-round {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background:
+    linear-gradient(145deg, rgb(231 184 81 / 10%), transparent 42%),
+    var(--mesh-surface-raised, #212843);
+}
+
+.quick-draw-round-topline,
+.quick-draw-canvas-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.quick-draw-round h2,
+.quick-draw-canvas-card h2,
+.quick-draw-results h2 {
+  font-size: clamp(1.4rem, 2.7vw, 2.1rem);
+  line-height: 1.02;
+}
+
+.quick-draw-clock {
+  display: grid;
+  gap: 0.08rem;
+  margin: clamp(1rem, 2vw, 1.6rem) 0;
+  padding: 0.9rem 1rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--mesh-accent, #e7b851) 46%, var(--mesh-border));
+  border-radius: 1rem;
+  background: rgb(6 8 15 / 36%);
+}
+
+.quick-draw-clock span {
+  color: var(--mesh-text-muted, #b5bdd2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.quick-draw-clock strong {
+  color: var(--mesh-text, #f7f4ed);
+  font-size: clamp(2.3rem, 4.4vw, 3.7rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.065em;
+  line-height: 0.9;
+}
+
+.quick-draw-name {
+  margin-bottom: 0.85rem;
+}
+
+.quick-draw-name .mesh-name-input-label {
+  color: var(--mesh-text-muted, #b5bdd2);
+}
+
+.quick-draw-name .mesh-name-input-field {
+  border-color: color-mix(in srgb, var(--mesh-border, #38415e) 80%, transparent);
+  background: rgb(5 8 14 / 28%);
+}
+
+.quick-draw-stage-action {
   margin-top: 0;
 }
-h1 {
-  max-width: 12ch;
-  font-size: clamp(3rem, 8vw, 6rem);
-  line-height: 0.88;
-  letter-spacing: -0.075em;
-  margin-bottom: 1rem;
+
+.quick-draw-helper,
+.quick-draw-canvas-note,
+.quick-draw-empty {
+  margin: 0.75rem 0 0;
+  color: var(--mesh-text-muted, #b5bdd2);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
-.timer {
-  display: inline-grid;
-  min-width: 150px;
-  padding: 1rem;
-  border-radius: 18px;
-  background: #1e4551;
-  border: 1px solid #71c9ce;
-  text-align: center;
-}
-.timer span {
-  font-size: 0.75rem;
-  color: #bae8eb;
-}
-.timer strong {
-  font-size: 2.4rem;
-}
-.duel-grid {
+
+.quick-draw-stamps {
   display: grid;
-  grid-template-columns: 0.75fr 1.25fr;
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.8rem;
 }
-.card {
-  background: linear-gradient(145deg, #17323f, #122936);
-  border: 1px solid #ffffff20;
-  border-radius: 22px;
-  padding: 1.35rem;
-  box-shadow: 0 20px 45px #0003;
+
+.quick-draw-stamps .mesh-button {
+  min-height: 2.55rem;
+  padding-inline: 0.65rem;
+  font-size: 0.82rem;
 }
-.mesh-name-input {
-  margin: 0.2rem 0 1rem;
+
+.quick-draw-canvas-card {
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at 78% 10%, rgb(231 184 81 / 12%), transparent 28%),
+    linear-gradient(145deg, rgb(255 255 255 / 3%), transparent 40%), var(--mesh-surface, #181d31);
 }
-.primary {
-  width: 100%;
-  border: 0;
-  border-radius: 12px;
-  padding: 0.82rem;
-  background: #71c9ce;
-  color: #082329;
-  font-weight: 900;
-  cursor: pointer;
+
+.quick-draw-mark-count {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.32rem 0.52rem;
+  border: 1px solid color-mix(in srgb, var(--mesh-border, #38415e) 80%, transparent);
+  border-radius: 999px;
+  color: var(--mesh-text-muted, #b5bdd2);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
 }
-.primary:disabled,
-.fallback button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.controls p {
-  color: #bae8eb;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  margin-top: 1rem;
-}
-.fallback {
+
+.quick-draw-canvas-wrap {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  min-height: min(24rem, 42dvh);
+  flex: 1;
+  place-items: stretch;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mesh-border, #38415e) 78%, transparent);
+  border-radius: 1rem;
+  background:
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px), #101323;
+  background-size: 2rem 2rem;
 }
-.fallback button {
-  border: 1px solid #71c9ce;
-  background: #ffffff0a;
-  color: #ecfbff;
-  border-radius: 10px;
-  padding: 0.7rem;
-  cursor: pointer;
-}
-.canvas-card canvas {
+
+.quick-draw-canvas-wrap canvas {
+  z-index: 1;
   width: 100%;
-  height: auto;
-  border-radius: 15px;
-  background: #0c1b23;
-  border: 1px dashed #71c9ce;
+  height: 100%;
+  min-height: 15rem;
   touch-action: none;
 }
-.canvas-note {
-  color: #bae8eb;
-  font-size: 0.82rem;
-  margin: 0.7rem 0 0;
+
+.quick-draw-canvas-wrap canvas:focus-visible {
+  outline: 3px solid var(--mesh-focus-ring, #ffe2a1);
+  outline-offset: -4px;
 }
-.result {
-  margin-top: 1rem;
-}
-.result ol {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 0;
-}
-.result li {
+
+.quick-draw-canvas-empty {
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template-columns: 2rem 1fr auto;
+  place-content: center;
+  gap: 0.45rem;
+  padding: 1rem;
+  color: var(--mesh-text-muted, #b5bdd2);
+  text-align: center;
+}
+
+.quick-draw-canvas-empty span {
+  color: color-mix(in srgb, var(--mesh-accent, #e7b851) 82%, white);
+  font-size: clamp(3.75rem, 12vw, 7.5rem);
+  font-weight: 760;
+  letter-spacing: -0.09em;
+  line-height: 0.8;
+  opacity: 0.24;
+}
+
+.quick-draw-canvas-empty p {
+  max-width: 17rem;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.quick-draw-results {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(1rem, 3vw, 2.5rem);
+  align-items: start;
+  margin-top: clamp(0.75rem, 1.6vw, 1.25rem);
+  background: color-mix(in srgb, var(--mesh-surface, #181d31) 76%, transparent);
+}
+
+.quick-draw-results ol {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quick-draw-results li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  gap: 0.7rem;
   align-items: center;
-  gap: 0.6rem;
-  border-top: 1px solid #ffffff18;
-  padding: 0.8rem 0;
+  min-height: 3.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--mesh-border, #38415e) 70%, transparent);
 }
-.result li span {
-  color: #71c9ce;
-  font-weight: 900;
+
+.quick-draw-rank {
+  color: var(--mesh-accent, #e7b851);
+  font-size: 0.82rem;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
 }
-.result li small {
-  color: #bae8eb;
+
+.quick-draw-results strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--mesh-text, #f7f4ed);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.empty {
-  color: #bae8eb;
+
+.quick-draw-results small {
+  color: var(--mesh-text-muted, #b5bdd2);
+  font-size: 0.75rem;
+  text-align: right;
 }
-@media (max-width: 720px) {
-  .duel-page {
-    padding-top: 5.2rem;
+
+@media (min-width: 45rem) and (max-height: 44rem) {
+  .quick-draw-page {
+    padding-top: 0.65rem;
+    padding-bottom: 0.8rem;
   }
-  .duel-grid {
+
+  .quick-draw-intro {
+    gap: 0.8rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .quick-draw-intro h1 {
+    font-size: clamp(2.2rem, 4.2vw, 3rem);
+  }
+
+  .quick-draw-lede {
+    margin-top: 0.4rem;
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+
+  .quick-draw-round,
+  .quick-draw-canvas-card,
+  .quick-draw-results {
+    padding: 0.85rem;
+  }
+
+  .quick-draw-round h2,
+  .quick-draw-canvas-card h2,
+  .quick-draw-results h2 {
+    font-size: 1.35rem;
+  }
+
+  .quick-draw-clock {
+    margin: 0.5rem 0;
+    padding: 0.52rem 0.72rem;
+  }
+
+  .quick-draw-clock strong {
+    font-size: 2.1rem;
+  }
+
+  .quick-draw-name {
+    margin-bottom: 0.45rem;
+  }
+
+  .quick-draw-stage-action {
+    min-height: 2.7rem;
+    padding-block: 0.62rem;
+  }
+
+  .quick-draw-helper {
+    margin-top: 0.5rem;
+    font-size: 0.76rem;
+  }
+
+  .quick-draw-canvas-wrap {
+    min-height: 14rem;
+    margin-top: 0.7rem;
+  }
+
+  .quick-draw-canvas-wrap canvas {
+    min-height: 14rem;
+  }
+
+  .quick-draw-results {
+    margin-top: 0.8rem;
+  }
+}
+
+@media (max-width: 46rem) {
+  .quick-draw-intro,
+  .quick-draw-results {
     grid-template-columns: 1fr;
   }
-  .result li {
-    grid-template-columns: 2rem 1fr;
+
+  .quick-draw-intro {
+    align-items: start;
+    flex-direction: column;
+    gap: 0.75rem;
   }
-  .result li small {
+
+  .quick-draw-signals {
+    justify-content: start;
+  }
+
+  .quick-draw-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-draw-canvas-wrap {
+    min-height: min(19rem, 45dvh);
+  }
+}
+
+@media (max-width: 36rem) {
+  .quick-draw-page {
+    padding: 0.9rem;
+  }
+
+  .quick-draw-intro h1 {
+    max-width: 10ch;
+    font-size: clamp(2.65rem, 14vw, 3.6rem);
+  }
+
+  .quick-draw-lede {
+    margin-top: 0.7rem;
+    font-size: 0.96rem;
+  }
+
+  .quick-draw-round,
+  .quick-draw-canvas-card,
+  .quick-draw-results {
+    padding: 1rem;
+  }
+
+  .quick-draw-canvas-heading {
+    align-items: end;
+  }
+
+  .quick-draw-canvas-wrap {
+    min-height: 15rem;
+  }
+
+  .quick-draw-canvas-wrap canvas {
+    min-height: 15rem;
+  }
+
+  .quick-draw-results li {
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    gap: 0.45rem;
+    padding: 0.55rem 0;
+  }
+
+  .quick-draw-results small {
     grid-column: 2;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quick-draw-page::before {
+    display: none;
   }
 }

@@ -9,10 +9,9 @@ describe("quick draw", () => {
     expect(isValidResult({ finishedAt: 1, marks: 1 })).toBe(true);
     expect(isValidResult({ finishedAt: 1, marks: 0 })).toBe(false);
   });
-  it("renders fallback drawing controls", () => {
+  it("renders the live drawing surface with a clear first action", () => {
     render(<Feature room={createMockRoom()} config={config} />);
-    expect(
-      screen.getByRole("heading", { name: "Thirty seconds. Make your mark." }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Draw first. Finish clean." })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start 30-second round" })).toBeEnabled();
   });
 });
