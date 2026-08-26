@@ -1,14 +1,14 @@
-# **APP_NAME**
+# Quick Draw
 
-[![pages](https://img.shields.io/badge/live-baditaflorin.github.io%2F__APP_NAME__-__ACCENT_NOHASH__)](https://baditaflorin.github.io/__APP_NAME__/)
-[![version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/baditaflorin/__APP_NAME__/blob/main/package.json)
+[![pages](https://img.shields.io/badge/live-baditaflorin.github.io%2Fmesh--quick--draw--duel-e7b851)](https://baditaflorin.github.io/mesh-quick-draw-duel/)
+[![version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/baditaflorin/mesh-quick-draw-duel/blob/main/package.json)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
-> **DESCRIPTION**
+> A focused shared sketch sprint: make a mark, finish honestly, and see the live order together.
 
-**Live → https://baditaflorin.github.io/__APP_NAME__/**
+**Live → https://baditaflorin.github.io/mesh-quick-draw-duel/**
 
-**Source → https://github.com/baditaflorin/__APP_NAME__**
+**Source → https://github.com/baditaflorin/mesh-quick-draw-duel**
 
 **Tip the dev (buy a coffee) → https://www.paypal.com/paypalme/florinbadita**
 
@@ -36,8 +36,8 @@ For local hacking:
 
 ```bash
 git clone https://github.com/baditaflorin/mesh-common
-git clone https://github.com/baditaflorin/__APP_NAME__
-cd __APP_NAME__
+git clone https://github.com/baditaflorin/mesh-quick-draw-duel
+cd mesh-quick-draw-duel
 npm install
 npm run dev
 ```
@@ -56,10 +56,10 @@ npm run dev
 
 The settings drawer lets the user override signaling and TURN endpoints. localStorage keys:
 
-- `__APP_NAME__:signalingUrl`
-- `__APP_NAME__:turnTokenUrl`
-- `__APP_NAME__:iceServers`
-- `__APP_NAME__:room`
+- `mesh-quick-draw-duel:signalingUrl`
+- `mesh-quick-draw-duel:turnTokenUrl`
+- `mesh-quick-draw-duel:iceServers`
+- `mesh-quick-draw-duel:room`
 
 If endpoints are blank or unreachable, the app falls back to STUN-only.
 
