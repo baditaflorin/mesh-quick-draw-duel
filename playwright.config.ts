@@ -12,6 +12,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   timeout: 30_000,
   expect: { timeout: 5_000 },
+  // Several product tests deliberately use a shared local-only room. Keep
+  // CI deterministic across files instead of allowing separate workers to
+  // compete for the same browser-scoped device identity and settings state.
+  workers: process.env["CI"] ? 1 : undefined,
   fullyParallel: false,
   reporter: process.env["CI"] ? "list" : [["list"], ["json", { outputFile: "test-results.json" }]],
   use: {
