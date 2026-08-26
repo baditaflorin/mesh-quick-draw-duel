@@ -2,6 +2,8 @@ steps:
   verify:
     image: node:22-bookworm
     commands:
+      - git clone --depth 1 https://github.com/baditaflorin/mesh-common.git ../mesh-common
+      - npm ci --prefix ../mesh-common
       - npm ci
       - npx playwright install --with-deps chromium
       - npm run fmt:check
