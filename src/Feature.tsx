@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  MeshButton,
   MeshNameInput,
+  MeshPresence,
+  MeshStatusPill,
+  MeshSurface,
   useNamedPeer,
   usePerPeerValue,
   useSharedStrokes,
@@ -11,7 +15,9 @@ import {
 
 type Props = { room: YRoom | null; config: MeshConfig };
 type RoundResult = { finishedAt: number; marks: number };
+
 const ROUND_MS = 30_000;
+
 export function isValidResult(value: unknown): value is RoundResult {
   return (
     !!value &&
@@ -23,16 +29,33 @@ export function isValidResult(value: unknown): value is RoundResult {
     ((value as Record<string, unknown>).marks as number) > 0
   );
 }
+
 export function fmt(ms: number) {
-  const s = Math.max(0, Math.ceil(ms / 1000));
-  return `0:${String(s).padStart(2, "0")}`;
+  const seconds = Math.max(0, Math.ceil(ms / 1000));
+  return `0:${String(seconds).padStart(2, "0")}`;
 }
+
+function timerCopy(state: "idle" | "running" | "paused" | "finished") {
+  switch (state) {
+    case "running":
+      return { tone: "live" as const, label: "Round in progress" };
+    case "finished":
+      return { tone: "success" as const, label: "Round complete" };
+    case "paused":
+      return { tone: "warning" as const, label: "Round paused" };
+    default:
+      return { tone: "neutral" as const, label: "Ready when you are" };
+  }
+}
+
 export function Feature({ room, config }: Props) {
   const named = useNamedPeer(config, room);
-  const timer = useSharedTimer(room, "mesh-quick-draw-duel:timer", { durationMs: ROUND_MS });
+  const timer = useSharedTimer(room, "mesh-quick-draw-duel:timer", {
+    durationMs: ROUND_MS,
+  });
   const strokes = useSharedStrokes(room, {
     key: "mesh-quick-draw-duel:strokes",
-    color: "#71c9ce",
+    color: "#e7b851",
     width: 6,
   });
   const results = usePerPeerValue<RoundResult | null>(room, "mesh-quick-draw-duel:results", null);
@@ -40,10 +63,16 @@ export function Feature({ room, config }: Props) {
   const [drawing, setDrawing] = useState<number[]>([]);
   const active = timer.state === "running";
   const mine = isValidResult(results.my) ? results.my : null;
+  const round = timerCopy(timer.state);
+  const peerCount = room?.peerCount ?? 0;
+
   useEffect(() => {
-    const ctx = canvas.current?.getContext("2d");
-    if (ctx) strokes.replay(ctx, { clear: true, width: 640, height: 330 });
+    const context = canvas.current?.getContext("2d");
+    if (context) {
+      strokes.replay(context, { clear: true, width: 640, height: 330 });
+    }
   }, [strokes.strokes]);
+
   const myMarks = room
     ? strokes.strokes.filter((stroke) => stroke.peerId === room.peerId).length
     : 0;
@@ -55,6 +84,7 @@ export function Feature({ room, config }: Props) {
     [results.entries],
   );
   const winner = board[0];
+
   const point = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     return [
@@ -62,6 +92,19 @@ export function Feature({ room, config }: Props) {
       (event.clientY - rect.top) * (330 / rect.height),
     ];
   };
+
+  const startRound = () => {
+    strokes.clear();
+    results.clearMy();
+    timer.start(ROUND_MS);
+  };
+
+  const finishDrawing = () => {
+    if (!mine && myMarks > 0) {
+      results.setMy({ finishedAt: Date.now(), marks: myMarks });
+    }
+  };
+
   const stamp = (shape: "star" | "line") => {
     if (!active || mine) return;
     const base =
@@ -70,119 +113,188 @@ export function Feature({ room, config }: Props) {
         : [160, 160, 470, 160];
     strokes.add(base);
   };
+
+  const stageAction = !active ? (
+    <MeshButton
+      className="quick-draw-stage-action"
+      size="lg"
+      fullWidth
+      onClick={startRound}
+      disabled={!room}
+    >
+      {timer.state === "finished" ? "Start a fresh round" : "Start 30-second round"}
+    </MeshButton>
+  ) : (
+    <MeshButton
+      className="quick-draw-stage-action"
+      size="lg"
+      fullWidth
+      onClick={finishDrawing}
+      disabled={!room || !!mine || myMarks === 0}
+    >
+      {mine ? "Drawing locked" : "Finish my drawing"}
+    </MeshButton>
+  );
+
   return (
-    <main className="duel-page">
-      <header>
-        <p className="eyebrow">Quick draw duel</p>
-        <h1>Thirty seconds. Make your mark.</h1>
-        <div className="timer" aria-live="polite">
-          <span>{active ? "time left" : timer.state === "finished" ? "round ended" : "ready"}</span>
-          <strong>
-            {active ? fmt(timer.remainingMs ?? 0) : timer.state === "finished" ? "Done" : "0:30"}
-          </strong>
+    <main className="quick-draw-page">
+      <header className="quick-draw-intro">
+        <div>
+          <p className="quick-draw-eyebrow">Shared sketch sprint</p>
+          <h1>Draw first. Finish clean.</h1>
+          <p className="quick-draw-lede">
+            A thirty-second shared canvas where every mark lands in the same room.
+          </p>
         </div>
-        <p role="status">
-          {room
-            ? `Connected with ${room.peerCount} peer${room.peerCount === 1 ? "" : "s"}`
-            : "Connecting to duel room…"}
-        </p>
+        <div className="quick-draw-signals" aria-label="Duel room status">
+          <MeshStatusPill tone={round.tone} dot>
+            {round.label}
+          </MeshStatusPill>
+          <MeshPresence
+            count={peerCount}
+            label="devices in this duel"
+            state={room ? "connected" : "connecting"}
+          />
+        </div>
       </header>
-      <section className="duel-grid">
-        <section className="card controls">
-          <p className="eyebrow">Your turn</p>
-          <MeshNameInput
-            label="Your name"
-            value={named.name}
-            onChange={named.setName}
-            placeholder="Duelist name"
-            maxLength={32}
-          />
-          {!active ? (
-            <button
-              className="primary"
-              type="button"
-              onClick={() => {
-                strokes.clear();
-                timer.start(ROUND_MS);
-              }}
-              disabled={!room}
-            >
-              {timer.state === "finished" ? "Start a fresh round" : "Start shared round"}
-            </button>
+
+      <section className="quick-draw-workspace" aria-label="Quick Draw workspace">
+        <MeshSurface
+          as="section"
+          tone="raised"
+          padding="lg"
+          className="quick-draw-round"
+          aria-labelledby="round-heading"
+        >
+          <div className="quick-draw-round-topline">
+            <p className="quick-draw-eyebrow">Round clock</p>
+            <MeshStatusPill tone={round.tone} dot>
+              {active ? "Live" : timer.state === "finished" ? "Closed" : "On deck"}
+            </MeshStatusPill>
+          </div>
+          <h2 id="round-heading">Make one deliberate mark.</h2>
+          <div
+            className="quick-draw-clock"
+            aria-label={`Time ${active ? "remaining" : "available"}`}
+          >
+            <span>{active ? "time remaining" : "shared window"}</span>
+            <strong>{active ? fmt(timer.remainingMs ?? 0) : "0:30"}</strong>
+          </div>
+          <div className="quick-draw-name">
+            <MeshNameInput
+              label="Your name"
+              value={named.name}
+              onChange={named.setName}
+              placeholder="Duelist name"
+              maxLength={32}
+            />
+          </div>
+          {stageAction}
+          {active ? (
+            <p className="quick-draw-helper" role="status">
+              {mine
+                ? "Your finish is sealed. Watch the shared wall fill in."
+                : "Draw with a pointer, or add an accessible mark below."}
+            </p>
           ) : (
-            <>
-              <button
-                className="primary"
-                type="button"
-                onClick={() =>
-                  !mine && myMarks > 0 && results.setMy({ finishedAt: Date.now(), marks: myMarks })
-                }
-                disabled={!room || !!mine || myMarks === 0}
-              >
-                {mine ? "Finished ✓" : "Finish my drawing"}
-              </button>
-              <p role="status">
-                {mine
-                  ? "Your result is sealed once, keeping the finish order honest."
-                  : "Draw with a pointer, or use the keyboard-safe stamps below."}
-              </p>
-              <div className="fallback" aria-label="Accessible drawing fallback">
-                <button type="button" onClick={() => stamp("star")} disabled={!!mine}>
-                  Add star stamp
-                </button>
-                <button type="button" onClick={() => stamp("line")} disabled={!!mine}>
-                  Add line stamp
-                </button>
-              </div>
-            </>
+            <p className="quick-draw-helper" role="status">
+              {room
+                ? "Everyone sees the same clock when the round opens."
+                : "Connecting to your shared canvas…"}
+            </p>
           )}
-        </section>
-        <section className="card canvas-card">
-          <p className="eyebrow">Shared drawing wall</p>
-          <canvas
-            ref={canvas}
-            width={640}
-            height={330}
-            aria-label="Drawing wall. Use the stamp buttons if drawing with a pointer is unavailable."
-            onPointerDown={(e) => {
-              if (!active || mine) return;
-              e.currentTarget.setPointerCapture(e.pointerId);
-              setDrawing(point(e));
-            }}
-            onPointerMove={(e) => {
-              if (drawing.length) setDrawing([...drawing, ...point(e)]);
-            }}
-            onPointerUp={() => {
-              if (drawing.length >= 4) strokes.add(drawing);
-              setDrawing([]);
-            }}
-          />
-          <p className="canvas-note">{strokes.strokes.length} validated marks shared</p>
-        </section>
+          {active ? (
+            <div className="quick-draw-stamps" aria-label="Accessible drawing controls">
+              <MeshButton variant="secondary" onClick={() => stamp("star")} disabled={!!mine}>
+                Add star mark
+              </MeshButton>
+              <MeshButton variant="secondary" onClick={() => stamp("line")} disabled={!!mine}>
+                Add line mark
+              </MeshButton>
+            </div>
+          ) : null}
+        </MeshSurface>
+
+        <MeshSurface
+          as="section"
+          tone="accent"
+          padding="lg"
+          className="quick-draw-canvas-card"
+          aria-labelledby="canvas-heading"
+        >
+          <div className="quick-draw-canvas-heading">
+            <div>
+              <p className="quick-draw-eyebrow">Live sheet</p>
+              <h2 id="canvas-heading">The shared drawing wall</h2>
+            </div>
+            <span className="quick-draw-mark-count">
+              {strokes.strokes.length} {strokes.strokes.length === 1 ? "mark" : "marks"}
+            </span>
+          </div>
+          <div className="quick-draw-canvas-wrap">
+            <canvas
+              ref={canvas}
+              width={640}
+              height={330}
+              aria-label="Drawing wall. Use the accessible mark buttons if drawing with a pointer is unavailable."
+              onPointerDown={(event) => {
+                if (!active || mine) return;
+                event.currentTarget.setPointerCapture(event.pointerId);
+                setDrawing(point(event));
+              }}
+              onPointerMove={(event) => {
+                if (drawing.length) setDrawing([...drawing, ...point(event)]);
+              }}
+              onPointerUp={() => {
+                if (drawing.length >= 4) strokes.add(drawing);
+                setDrawing([]);
+              }}
+              onPointerCancel={() => setDrawing([])}
+            />
+            {!active && strokes.strokes.length === 0 ? (
+              <div className="quick-draw-canvas-empty" aria-hidden="true">
+                <span>30</span>
+                <p>The wall wakes up with the next shared round.</p>
+              </div>
+            ) : null}
+          </div>
+          <p className="quick-draw-canvas-note">
+            Marks sync in the room. The finish order is visible to everyone.
+          </p>
+        </MeshSurface>
       </section>
-      <section className="card result" aria-labelledby="result-heading">
-        <p className="eyebrow">Fair finish order</p>
-        <h2 id="result-heading">
-          {winner
-            ? `${named.nameOf(winner[0]) || `Duelist ${winner[0].slice(0, 5)}`} wins this round`
-            : "Finish a drawing to set the order"}
-        </h2>
+
+      <MeshSurface
+        as="section"
+        tone="quiet"
+        padding="lg"
+        className="quick-draw-results"
+        aria-labelledby="results-heading"
+      >
+        <div>
+          <p className="quick-draw-eyebrow">Fair finish order</p>
+          <h2 id="results-heading">
+            {winner
+              ? `${named.nameOf(winner[0]) || `Duelist ${winner[0].slice(0, 5)}`} leads this round`
+              : "A clean finish sets the order"}
+          </h2>
+        </div>
         {board.length ? (
           <ol>
             {board.map(([id, result], index) => (
               <li key={id}>
-                <span>{index + 1}</span>
+                <span className="quick-draw-rank">{String(index + 1).padStart(2, "0")}</span>
                 <strong>{named.nameOf(id) || `Duelist ${id.slice(0, 5)}`}</strong>
                 <small>
-                  {result.marks} mark{result.marks === 1 ? "" : "s"} · finished first-wins
+                  {result.marks} {result.marks === 1 ? "mark" : "marks"} · finish confirmed
                 </small>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="empty">A validated result needs at least one shared mark.</p>
+          <p className="quick-draw-empty">A validated finish needs at least one shared mark.</p>
         )}
-      </section>
+      </MeshSurface>
     </main>
   );
 }
